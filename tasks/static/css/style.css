@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap');
+body{
+    padding: 0;
+    margin: 0;
+}
+#contenedor{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Inconsolata", monospace;
+}
+
+.contenedor__typing{
+    animation: animacion 2.5s steps(45), transparent .5s step-end infinite alternate;
+    width: 12.1em;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 9ch;
+}
+
+@keyframes animacion{
+    from{
+        width: 0;
+    }
+}
+
+@keyframes transparent{
+    50%{
+        border-color: transparent;
+    }
+}

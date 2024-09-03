@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<main class="container py-5">
+
+    <div class="row">
+        <div class="col-md-4 offset-md-4 mt-5">
+            <form action="/signup/" method="post" class="card card-body mx-auto" style="background-color: #262139; color: #06DB75;">
+                <div class="text-danger">{{error}}</div>
+                <h1 class="mx-auto">REGISTRO</h1>
+                {% csrf_token %}
+                {% for field in form %}
+                {% if field.errors %}
+                    <div class="text-danger">
+                        {{ field.label }}: {{ field.errors }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+                <div class="mb-3">
+                    <label for="username">Usuario:</label>
+                    <input type="text" name="username" id="username" class="form-control" placeholder="Usuario">
+                </div>
+                <div class="mb-3">
+                    <label for="password1">Contraseña:</label>
+                    <input type="password" name="password1" id="password1" class="form-control" placeholder="Contraseña">
+                </div>
+                <div class="mb-3">
+                    <label for="password2">Confirma tu contraseña:</label>
+                    <input type="password" name="password2" id="password2" class="form-control" placeholder="Repite la contraseña">
+                </div>
+                <div class="mb-3">
+                    <label for="email">Email</label>
+                    <input type="text" name="email" id="email" class="form-control" placeholder="exam@ple.cl">
+                </div>
+                
+                <button type="submit" id="boton">sign up</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

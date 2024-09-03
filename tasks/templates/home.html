@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<body style="background-color: #262139;">
+    {% if user.is_authenticated %}
+    <div  class="container" id="contenedor" style="margin-top: 15%;">
+        <!-- <div style="padding-top: 15%;"> -->
+            <h1 style="color: #06DB75; text-align: center;" class="contenedor__typing">Bienvenido/a, {{user}}</h1>
+        <!-- </div> -->
+    </div>
+    {% else %}
+    <div class="container">
+        <div class="d-flex flex-column justify-content-center align-items-center vh-100" style="font-family: 'Inter', sans-serif;">
+            <h1 style="color: #06DB75;">PARA VER ESTA PAGINA DEBES ESTAR REGISTRADO</h1>
+            <p style="color: #06DB75;">Porfavor <a href="/signup" style="color: #06DB75;">Registrate</a> o <a href="/login" style="color: #06DB75;">logeate</a></p>
+        </div>
+    </div>
+    {% endif %}
+</body>
+{% endblock %}
+

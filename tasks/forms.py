@@ -2,6 +2,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from .models import Review
+
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(
@@ -20,3 +22,9 @@ class CustomUserCreationForm(UserCreationForm):
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("Este correo electrónico ya está registrado.")
         return email
+    
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['content', 'rating']  # No incluyas el campo 'item' aquí

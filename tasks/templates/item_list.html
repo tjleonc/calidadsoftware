@@ -1,0 +1,10 @@
+<h1>Lista de productos</h1>
+<ul>
+  {% for item in items %}
+    <li>
+      <a href="{% url 'item_detail' pk=item.pk %}">{{ item.name }}</a> - ${{ item.price }}
+    </li>
+  {% empty %}
+    <li>No hay productos disponibles.</li>
+  {% endfor %}
+</ul>

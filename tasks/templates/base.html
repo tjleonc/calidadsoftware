@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../static/css/style.css">
 </head>
-<body>
+<body style="background-color: #262139;">
     <nav class="navbar navbar-expand-lg fixed-top" style="background-color: #262139;">
         <div class="container-fluid">
           <a class="navbar-brand" style="color: white;" href="#">Navbar</a>
@@ -20,8 +20,11 @@
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item" ><a href="/" class="nav-link" style="color: #06DB75;">Home</a></li>
-                <li class="nav-item" ><a href="/tasks" class="nav-link" style="color: #06DB75;">Tasks</a></li>
                 {% if user.is_authenticated %}
+                <li class="nav-item" ><a href="{% url 'product_detail' pk=1 %}" class="nav-link" style="color: #06DB75;">Reseñas</a></li>
+                <li class="nav-item">
+                  <a href="{% url 'item_list' %}" class="nav-link" style="color: #06DB75;">Productos</a>
+                </li>
                 <li class="nav-item"><a href="/logout" class="nav-link" style="color: #06DB75;">Log out</a></li>
                 {% else %}
                 <li class="nav-item"><a href="/signup" class="nav-link" style="color: #06DB75;">Signup</a></li>
@@ -37,6 +40,8 @@
     {% block content %}
 
     {% endblock %}
+
+    <!-- superuser admin:admin -->
 
 
 

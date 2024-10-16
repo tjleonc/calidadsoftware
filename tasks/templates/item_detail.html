@@ -1,0 +1,18 @@
+<h1>{{ item.name }}</h1>
+<p>{{ item.description }}</p>
+<p>Precio: ${{ item.price }}</p>
+
+<h2>Reseñas</h2>
+<ul>
+  {% for review in reviews %}
+    <li>
+      <strong>{{ review.author }}:</strong> {{ review.content }} <br>
+      Estrellas: {{ review.rating }}
+    </li>
+  {% empty %}
+    <li>No hay reseñas aún.</li>
+  {% endfor %}
+</ul>
+
+<a href="{% url 'add_review' pk=item.pk %}">Agregar reseña</a>
+

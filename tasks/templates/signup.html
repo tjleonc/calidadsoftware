@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<main class="container py-5">
+<main class="container py-5" >
 
-    <div class="row">
+    <div class="row" >
         <div class="col-md-4 offset-md-4 mt-5">
-            <form action="/signup/" method="post" class="card card-body mx-auto" style="background-color: #262139; color: #06DB75;">
+            <form action="/signup/" method="post" class="card card-body mx-auto" style="background-color: #262139; color: #06DB75; box-shadow: 2px 0px 34px 0px rgba(6,219,116,1);">
                 <div class="text-danger">{{error}}</div>
                 <h1 class="mx-auto">REGISTRO</h1>
                 {% csrf_token %}
@@ -32,8 +32,11 @@
                     <label for="email">Email</label>
                     <input type="text" name="email" id="email" class="form-control" placeholder="exam@ple.cl">
                 </div>
+                <div class="mb-3">
+                    <a href="/login" style="color: #06DB75;">¿Ya tienes cuenta? Logeate</a>
+                </div>
                 
-                <button type="submit" id="boton">sign up</button>
+                <button type="submit" id="boton" class="btn btn-success">sign up</button>
             </form>
         </div>
     </div>

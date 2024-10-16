@@ -21,7 +21,6 @@
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item" ><a href="/" class="nav-link" style="color: #06DB75;">Home</a></li>
                 {% if user.is_authenticated %}
-                <li class="nav-item" ><a href="{% url 'product_detail' pk=1 %}" class="nav-link" style="color: #06DB75;">Reseñas</a></li>
                 <li class="nav-item">
                   <a href="{% url 'item_list' %}" class="nav-link" style="color: #06DB75;">Productos</a>
                 </li>

@@ -1,6 +1,9 @@
-<h1>{{ item.name }}</h1>
-<p>{{ item.description }}</p>
-<p>Precio: ${{ item.price }}</p>
+{%extends 'base.html'%}
+{%block content%}
+
+<h1 style="color: white;">{{ item.name }}</h1>
+<p style="color: white;">{{ item.description }}</p>
+<p style="color: white;">Precio: ${{ item.price }}</p>
 
 <h2>Reseñas</h2>
 <ul>
@@ -14,5 +17,8 @@
   {% endfor %}
 </ul>
 
+<a href="">Comprar</a>
 <a href="{% url 'add_review' pk=item.pk %}">Agregar reseña</a>
 
+
+{%endblock%}

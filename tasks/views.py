@@ -114,15 +114,22 @@ def password_reset_confirm(request, uidb64, token):
 
 
 def add_review(request, pk):
-    item = get_object_or_404(Item, pk=pk)  # Obtener el item basado en el ID
+    item = get_object_or_404(Item, pk=pk)
+    
+    # Verifica si el usuario ha comprado el producto
+    if not Purchase.objects.filter(user=request.user, item=item).exists():
+        # Si el usuario no ha comprado el producto, no puede reseñarlo
+        messages.error(request, "No puedes reseñar este producto porque no lo has comprado.")
+        return redirect('item_detail', pk=item.pk)
+    
     if request.method == 'POST':
         form = ReviewForm(request.POST)
         if form.is_valid():
-            review = form.save(commit=False)  # No guardamos aún
-            review.item = item  # Establecer la relación con el item
-            review.author = request.user  # Asume que el usuario está autenticado
-            review.save()  # Ahora guardamos la reseña
-            return redirect('item_detail', pk=item.pk)  # Redirigir al detalle del item
+            review = form.save(commit=False)
+            review.item = item
+            review.author = request.user
+            review.save()
+            return redirect('item_detail', pk=item.pk)
     else:
         form = ReviewForm()
 

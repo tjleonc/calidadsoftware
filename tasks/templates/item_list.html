@@ -1,10 +1,29 @@
-<h1>Lista de productos</h1>
-<ul>
-  {% for item in items %}
-    <li>
-      <a href="{% url 'item_detail' pk=item.pk %}">{{ item.name }}</a> - ${{ item.price }}
-    </li>
-  {% empty %}
-    <li>No hay productos disponibles.</li>
-  {% endfor %}
-</ul>
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+
+
+<div class="container mt-5">
+  <div class="row">
+      {% for item in items %}
+      <div class="col-md-6 col-lg-3 mb-4 mt-4">
+          <div class="card h-100">
+              <img src="{{ item.image.url }}" class="card-img-top img-fluid" alt="{{ item.nombre }}">
+              <div class="card-body">
+                  <h5 class="card-title">{{ item.name }}</h5>
+                  <p class="card-text">{{ item.description }}</p>
+                  <p class="card-text"><strong>${{ item.price }}</strong></p>
+                  <a href="{% url 'item_detail' item.pk %}" class="btn btn-primary">Ver detalles</a>
+              </div>
+          </div>
+      </div>
+      {% empty %}
+      <p>No hay productos disponibles.</p>
+      {% endfor %}
+  </div>
+</div>
+
+
+{% endblock %}

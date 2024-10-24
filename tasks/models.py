@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 class Item(models.Model):
     name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='productos/', null=True, blank=True)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
@@ -19,3 +20,11 @@ class Review(models.Model):
 
     def __str__(self):
         return f'Reseña de {self.author} para {self.item}'
+
+class Purchase(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    purchase_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user.username} bought {self.item.name}'

@@ -19,6 +19,10 @@ body{
     font-size: 9ch;
 }
 
+.img-item-detail{
+    width: 200px;
+    height: 200px;
+  }
 @keyframes animacion{
     from{
         width: 0;

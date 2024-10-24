@@ -1,3 +1,4 @@
+import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
@@ -10,9 +11,10 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
-from .models import Review, Item
+from .models import Pedido, Review, Item, CarroCompra, Item, ProductoCarro
 from .forms import ReviewForm
 from django.shortcuts import get_object_or_404
+
 
 
 
@@ -163,3 +165,57 @@ def add_review(request, pk):
         form = ReviewForm()
 
     return render(request, 'add_review.html', {'item': item, 'form': form})
+
+@login_required
+def carrito(request):
+    carroCompra = CarroCompra.objects.filter(email_id = request.user.email)
+    total = 0
+    for producto in carroCompra:
+        total += producto.cantidad * int(Item.objects.get(codigo = producto.producto_id).precio)
+
+    datos = {
+        'carrito' : carroCompra,
+        'total' : total
+    }
+    return render(request,'carrito.html', datos)
+
+def editarCarrito(request):
+    carroCompra = CarroCompra.objects.filter(email_id = request.user.email)
+    if request.method == 'POST':
+        producto = get_object_or_404(CarroCompra, codigo = request.POST.get('codigo')) 
+        if 'editar_producto' in request.POST:
+            producto.cantidad = request.POST.get('cantidad')
+            producto.save()
+        elif 'eliminar_producto' in request.POST:
+            producto.delete()
+       
+    datos = {
+        'carrito' : carroCompra
+    }
+    return render(request,'editar_carro.html', datos)
+
+def editarEliminar(request, id):
+    carroCompra = CarroCompra.objects.filter(email_id = request.user.email)
+
+    datos = {
+        'carrito' : carroCompra
+    }
+    return render(request,'carrito_eliminar.html', datos)
+
+def exito(request):
+    total = 0
+    cliente = User.objects.get(email = request.user.email)  
+    productos = CarroCompra.objects.filter(email_id = request.user.email)
+    for producto in productos:
+        total += producto.cantidad * int(Item.objects.get(codigo = producto.producto_id).precio)
+    pedido = Pedido(email_id = request.user.email, fecha_pedido = datetime.now(), direccion_pedido = cliente.direccion, total_pedido = total)
+    pedido.save()
+    for p in productos:
+        producto = get_object_or_404(Item, codigo = p.producto.codigo)
+        productoCarro = ProductoCarro(codigo_producto_id = producto.codigo, codigo_pedido_id = pedido.nro_pedido, cantidad = p.cantidad)
+        producto.stock = producto.stock - productoCarro.cantidad
+        producto.save()
+        productoCarro.save()
+    for p in productos: 
+        p.delete()    
+    return render(request,'exito.html')

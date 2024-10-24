@@ -1,24 +1,72 @@
 {%extends 'base.html'%}
 {%block content%}
 
-<h1 style="color: white;">{{ item.name }}</h1>
-<p style="color: white;">{{ item.description }}</p>
-<p style="color: white;">Precio: ${{ item.price }}</p>
 
-<h2>Reseñas</h2>
-<ul>
-  {% for review in reviews %}
-    <li>
-      <strong>{{ review.author }}:</strong> {{ review.content }} <br>
-      Estrellas: {{ review.rating }}
-    </li>
+<style>
+  .img-item-detail{
+    width: 200px;
+    height: 200px;
+  }
+
+  .contenedor{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 100px;
+  }
+
+  a{
+    color: white;
+    text-decoration: none;
+  }
+
+  #card-container{
+    margin: 20px;
+  }
+
+</style>
+
+<body class="mt-5">
+
+
+
+<div class="contenedor">
+  <h1 style="color: white;">{{ item.name }}</h1>
+  <img class="img-item-detail" src="{{item.image.url}}" alt="">
+  <p style="color: white;">{{ item.description }}</p>
+  <p style="color: white;">Precio: ${{ item.price }}</p>
+
+
+</div>
+<div class="contenedor-reseñas">
+
+  <h2 style="color: white;">Reseñas</h2>
+
+{% for review in reviews %}
+<div class="card mb-3" id="card-container" style="max-width: 540px;">
+  <div class="row g-0">
+    <div class="col-md-4">
+      <img class="img-fluid rounded-start" src="{{item.image.url}}" alt="" >
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <h5 class="card-title">{{review.author}}</h5>
+        <p class="card-text">{{review.content}}</p>
+        <p class="card-text">Estrellas: {{review.rating}}</p>
+      </div>
+    </div>
+  </div>
   {% empty %}
-    <li>No hay reseñas aún.</li>
+  <li style="color: white;">No hay reseñas aún.</li>
   {% endfor %}
-</ul>
+</div>
 
-<a href="">Comprar</a>
-<a href="{% url 'add_review' pk=item.pk %}">Agregar reseña</a>
+</div>
+
+<button type="button" class="btn btn-success">Comprar</button>
+<button type="button" class="btn btn-success"><a href="{% url 'add_review' pk=item.pk %}">Agregar reseña</a></button>
+</body>
 
 
 {%endblock%}

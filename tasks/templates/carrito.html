@@ -1,0 +1,65 @@
+{% load mathfilters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="{% static "aplicacion/css/bootstrap.css" %}">
+  <link rel="stylesheet" href="{% static "aplicacion/css/style.css" %}">
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+</head>
+
+<body>
+  {% include "aplicacion/sitio_header_base.html" %}
+  <div class="container-fluid mt-3 mb-3">
+    <h1 class="ms-5">Tu carro de compra</h1>
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-9 ms-5 me-5" style="width: 640px;">
+        <a href="{% url "editar_carrito" %}" class="text-primary">Editar carrito.</a>
+    {% for  p in carrito %}
+    <div class="row border border-rounded shadow">
+      <div class="col-12 col-sm-3">
+        <img src="{{ p.producto.foto_pro.url }}" class="product-cart" alt="">
+      </div>
+      <div class="col-12 col-sm-7 p-2">
+        <p>{{p.producto.nombre_pro}}</p>
+        <p class="text-start">${{p.producto.precio}}</p>
+      </div>
+      <div class="col-12 col-sm-1 p-2">
+        <p>Cantidad: {{p.cantidad}}</p>
+        {% with precio=p.producto.precio %}
+        <p>Subtotal: ${{ precio|mul:p.cantidad}}</p>
+        {% endwith %}
+      </div>
+    </div>
+    {% empty %}
+    <h2> Aún no agregas nada al carro.</h2>
+    {% endfor %}
+    {% if carrito.first.cantidad == None %}
+    {% else %}
+      </div>
+      <div class="col-12 col-md-3 border rounded ms-5 me-5 mt-3" style="height: 200px; width:290px">
+        <div class="">
+          <p class="text-center mt-3 border-bottom ">Resumen del pedido</p>
+          <p class="text-center mt-3">Total a pagar:</p>
+          <p class="text-center mt-3">${{total}}</p>
+          <div class="text-center "> <a href="{% url "pago" %}" class="btn btn-success">Ir a pagar</a></div>
+        </div>
+    {% endif %}
+      </div>
+      </div>
+      </div>
+    </div>
+    
+</body>
+
+</html>

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class Item(models.Model):
@@ -20,6 +21,25 @@ class Review(models.Model):
 
     def __str__(self):
         return f'Reseña de {self.author} para {self.item}'
+    
+class CarroCompra(models.Model):
+    codigo = models.AutoField(primary_key=True,null=False)
+    email = models.ForeignKey(User, on_delete=models.PROTECT, null=False)
+    producto = models.ForeignKey(Item, on_delete=models.PROTECT, null=False)
+    cantidad = models.IntegerField(default=0, validators=[MinValueValidator(0),MaxValueValidator(999)],null=False)  
+
+class Pedido(models.Model):
+    nro_pedido= models.AutoField(primary_key=True,null=False)
+    total_pedido = models.IntegerField(default=0, validators=[MinValueValidator(0),MaxValueValidator(999999999999)],null=False)
+    email=models.ForeignKey(User,on_delete=models.PROTECT)    
+    fecha_pedido = models.DateField(null=False)
+    direccion_pedido = models.CharField(max_length=500, null=True)
+
+class ProductoCarro(models.Model):
+    id = models.AutoField(primary_key=True,null=False)
+    codigo_producto = models.ForeignKey(Item,on_delete=models.PROTECT, related_name = 'producto')
+    codigo_pedido = models.ForeignKey(Pedido, on_delete=models.PROTECT, related_name='pedido')
+    cantidad = models.IntegerField(default=0, validators=[MinValueValidator(0),MaxValueValidator(250)])  
 
 class Purchase(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

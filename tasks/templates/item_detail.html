@@ -36,6 +36,15 @@
   <img class="img-item-detail" src="{{item.image.url}}" alt="">
   <p style="color: white;">{{ item.description }}</p>
   <p style="color: white;">Precio: ${{ item.price }}</p>
+  <p>ID del ítem: {{ item.pk }}</p>
+  <button type="button" class="btn btn-success">
+    <a href="{% url 'agregar_al_carrito' item_id=item.pk %}">Comprar</a>
+  </button>
+  
+  {% if error_message %}
+    <div class="alert alert-danger">{{ error_message }}</div>
+  {% endif %}
+  <button type="button" class="btn btn-success"><a href="{% url 'add_review' pk=item.pk %}">Agregar reseña</a></button>
 
 
 </div>
@@ -63,9 +72,6 @@
 </div>
 
 </div>
-
-<button type="button" class="btn btn-success">Comprar</button>
-<button type="button" class="btn btn-success"><a href="{% url 'add_review' pk=item.pk %}">Agregar reseña</a></button>
 </body>
 
 

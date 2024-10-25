@@ -33,6 +33,10 @@ urlpatterns = [
     path('items/', views.item_list, name='item_list'),
     path('items/<int:pk>/', views.item_detail, name='item_detail'),
     path('items/<int:pk>/review/', views.add_review, name='add_review'),
+    path('carrito/', views.ver_carrito, name='ver_carrito'),
+    path('agregar-al-carrito/<int:item_id>/', views.agregar_al_carrito, name='agregar_al_carrito'),
+    path('eliminar-del-carrito/<int:item_id>/', views.eliminar_del_carrito, name='eliminar_del_carrito'),
+    path('proceder-compra/', views.proceder_compra, name='proceder_compra'),
     
     path('password_reset_form/', auth_views.PasswordResetView.as_view(template_name='password_reset_form.html'), name='reset_password'),
     path('password_reset_done/', auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'), name='password_reset_done'),

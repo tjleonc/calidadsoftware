@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import MaxValueValidator, MinValueValidator
+
 
 
 class Item(models.Model):
@@ -22,29 +22,44 @@ class Review(models.Model):
     def __str__(self):
         return f'Reseña de {self.author} para {self.item}'
     
-class CarroCompra(models.Model):
-    codigo = models.AutoField(primary_key=True,null=False)
-    email = models.ForeignKey(User, on_delete=models.PROTECT, null=False)
-    producto = models.ForeignKey(Item, on_delete=models.PROTECT, null=False)
-    cantidad = models.IntegerField(default=0, validators=[MinValueValidator(0),MaxValueValidator(999)],null=False)  
+class Carrito(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return f'Carrito de {self.usuario.username}'
+    
+    @property # Propiedad que calcula el total del carrito
+    def total(self):
+        return sum(item.subtotal for item in self.items.all())
 
-class Pedido(models.Model):
-    nro_pedido= models.AutoField(primary_key=True,null=False)
-    total_pedido = models.IntegerField(default=0, validators=[MinValueValidator(0),MaxValueValidator(999999999999)],null=False)
-    email=models.ForeignKey(User,on_delete=models.PROTECT)    
-    fecha_pedido = models.DateField(null=False)
-    direccion_pedido = models.CharField(max_length=500, null=True)
-
-class ProductoCarro(models.Model):
-    id = models.AutoField(primary_key=True,null=False)
-    codigo_producto = models.ForeignKey(Item,on_delete=models.PROTECT, related_name = 'producto')
-    codigo_pedido = models.ForeignKey(Pedido, on_delete=models.PROTECT, related_name='pedido')
-    cantidad = models.IntegerField(default=0, validators=[MinValueValidator(0),MaxValueValidator(250)])  
-
-class Purchase(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+class ItemCarrito(models.Model):
+    carrito = models.ForeignKey(Carrito, related_name='items', on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    purchase_date = models.DateTimeField(auto_now_add=True)
+    cantidad = models.PositiveIntegerField(default=1)
+    
+    def __str__(self):
+        return f'{self.item.name} x {self.cantidad}'
+    
+    @property
+    def subtotal(self):
+        return self.item.price * self.cantidad
+
+# Modelo para la orden de compra
+class Orden(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    items = models.ManyToManyField(Item, through='OrdenItem')
+    fecha = models.DateTimeField(auto_now_add=True)
+    pagado = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f'Orden de {self.usuario.username} - {self.fecha.strftime("%Y-%m-%d")}'
+    
+# Relación entre orden y item
+class OrdenItem(models.Model):
+    orden = models.ForeignKey(Orden, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField()
 
     def __str__(self):
-        return f'{self.user.username} bought {self.item.name}'
+        return f'{self.cantidad} de {self.item.name} en {self.orden}'
+

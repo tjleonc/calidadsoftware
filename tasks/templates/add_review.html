@@ -1,8 +1,13 @@
-
-
-<h1>Agregar reseña para {{ item.name }}</h1>
-<form method="post">
+<form method="POST">
   {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Enviar reseña</button>
+  <textarea name="content" placeholder="Escribe tu reseña aquí..." required></textarea>
+  <select name="rating" required>
+      <option value="">Selecciona una calificación</option>
+      <option value="1">1 Estrella</option>
+      <option value="2">2 Estrellas</option>
+      <option value="3">3 Estrellas</option>
+      <option value="4">4 Estrellas</option>
+      <option value="5">5 Estrellas</option>
+  </select>
+  <button type="submit">Enviar Reseña</button>
 </form>

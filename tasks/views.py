@@ -11,10 +11,9 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
-from .models import Pedido, Review, Item, CarroCompra, Item, ProductoCarro
 from .forms import ReviewForm
 from django.shortcuts import get_object_or_404
-
+from .models import Carrito, ItemCarrito, Item, Orden, OrdenItem,Review  
 
 
 
@@ -113,31 +112,6 @@ def password_reset_confirm(request, uidb64, token):
     return render(request, 'password_reset_confirm.html', context)  # Cambia 'tu_template.html' por el nombre de tu archivo de template
 
 
-
-
-def add_review(request, pk):
-    item = get_object_or_404(Item, pk=pk)
-    
-    # Verifica si el usuario ha comprado el producto
-    if not Purchase.objects.filter(user=request.user, item=item).exists():
-        # Si el usuario no ha comprado el producto, no puede reseñarlo
-        messages.error(request, "No puedes reseñar este producto porque no lo has comprado.")
-        return redirect('item_detail', pk=item.pk)
-    
-    if request.method == 'POST':
-        form = ReviewForm(request.POST)
-        if form.is_valid():
-            review = form.save(commit=False)
-            review.item = item
-            review.author = request.user
-            review.save()
-            return redirect('item_detail', pk=item.pk)
-    else:
-        form = ReviewForm()
-
-    return render(request, 'add_review.html', {'item': item, 'form': form})
-
-
 def item_list(request):
     items = Item.objects.all()
     return render(request, 'item_list.html', {'items': items})
@@ -150,72 +124,85 @@ def item_detail(request, pk):
 
 
 # Vista para añadir una reseña a un producto
+@login_required
 def add_review(request, pk):
-    item = get_object_or_404(Item, pk=pk)
-    
-    if request.method == 'POST':
-        form = ReviewForm(request.POST)
-        if form.is_valid():
-            review = form.save(commit=False)
-            review.item = item
-            review.author = request.user
-            review.save()
-            return redirect('item_detail', pk=item.pk)
-    else:
-        form = ReviewForm()
+    item = get_object_or_404(Item, id=pk)
 
-    return render(request, 'add_review.html', {'item': item, 'form': form})
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        rating = request.POST.get('rating')
+
+        
+        try:
+            carrito = Carrito.objects.get(usuario=request.user)
+            item_carrito = ItemCarrito.objects.get(carrito=carrito, item=item)
+        except ItemCarrito.DoesNotExist:
+            
+            return render(request, 'item_detail.html', {
+                'item': item,
+                'reviews': Review.objects.filter(item=item),
+                'error_message': 'No puedes reseñar este ítem porque no lo has comprado.'
+            })
+
+        
+        Review.objects.create(
+            item=item,
+            author=request.user,
+            content=content,
+            rating=rating
+        )
+
+        return redirect('ver_carrito')
+
+    return render(request, 'add_review.html', {'item': item})
 
 @login_required
-def carrito(request):
-    carroCompra = CarroCompra.objects.filter(email_id = request.user.email)
-    total = 0
-    for producto in carroCompra:
-        total += producto.cantidad * int(Item.objects.get(codigo = producto.producto_id).precio)
+def ver_carrito(request):
+    carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+    return render(request, 'carrito.html', {'carrito': carrito})
 
-    datos = {
-        'carrito' : carroCompra,
-        'total' : total
-    }
-    return render(request,'carrito.html', datos)
+@login_required
+def agregar_al_carrito(request, item_id):
+    item = get_object_or_404(Item, id=item_id)
+    carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+    
+    item_carrito, item_created = ItemCarrito.objects.get_or_create(
+        carrito=carrito,
+        item=item,
+    )
+    
+    # Incrementar la cantidad si ya existe en el carrito
+    if not item_created:
+        item_carrito.cantidad += 1
+    item_carrito.save()
+    
+    return redirect('ver_carrito')
 
-def editarCarrito(request):
-    carroCompra = CarroCompra.objects.filter(email_id = request.user.email)
-    if request.method == 'POST':
-        producto = get_object_or_404(CarroCompra, codigo = request.POST.get('codigo')) 
-        if 'editar_producto' in request.POST:
-            producto.cantidad = request.POST.get('cantidad')
-            producto.save()
-        elif 'eliminar_producto' in request.POST:
-            producto.delete()
-       
-    datos = {
-        'carrito' : carroCompra
-    }
-    return render(request,'editar_carro.html', datos)
+@login_required
+def eliminar_del_carrito(request, item_id):
+    item_carrito = get_object_or_404(ItemCarrito, id=item_id, carrito__usuario=request.user)
+    item_carrito.delete()
+    return redirect('ver_carrito')
 
-def editarEliminar(request, id):
-    carroCompra = CarroCompra.objects.filter(email_id = request.user.email)
+@login_required
+def proceder_compra(request):
+    carrito = get_object_or_404(Carrito, usuario=request.user)
 
-    datos = {
-        'carrito' : carroCompra
-    }
-    return render(request,'carrito_eliminar.html', datos)
+    if carrito.items.count() == 0:
+        return redirect('ver_carrito')
 
-def exito(request):
-    total = 0
-    cliente = User.objects.get(email = request.user.email)  
-    productos = CarroCompra.objects.filter(email_id = request.user.email)
-    for producto in productos:
-        total += producto.cantidad * int(Item.objects.get(codigo = producto.producto_id).precio)
-    pedido = Pedido(email_id = request.user.email, fecha_pedido = datetime.now(), direccion_pedido = cliente.direccion, total_pedido = total)
-    pedido.save()
-    for p in productos:
-        producto = get_object_or_404(Item, codigo = p.producto.codigo)
-        productoCarro = ProductoCarro(codigo_producto_id = producto.codigo, codigo_pedido_id = pedido.nro_pedido, cantidad = p.cantidad)
-        producto.stock = producto.stock - productoCarro.cantidad
-        producto.save()
-        productoCarro.save()
-    for p in productos: 
-        p.delete()    
-    return render(request,'exito.html')
+    # Crear la orden de compra
+    orden = Orden.objects.create(usuario=request.user, pagado=True)
+
+    # Transferir los productos del carrito a la orden
+    for item_carrito in carrito.items.all():
+        OrdenItem.objects.create(
+            orden=orden,
+            item=item_carrito.item,
+            cantidad=item_carrito.cantidad,
+        )
+
+    # Vaciar el carrito después de la compra
+    carrito.items.all().delete()
+
+    return render(request, 'compra_exitosa.html', {'orden': orden})

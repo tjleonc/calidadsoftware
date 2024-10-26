@@ -128,31 +128,26 @@ def item_detail(request, pk):
 def add_review(request, pk):
     item = get_object_or_404(Item, id=pk)
 
+    # Verificar si el usuario ha comprado el producto
+    ha_comprado = Orden.objects.filter(
+        usuario=request.user,
+        items=item,
+        pagado=True
+    ).exists()
+
+    if not ha_comprado:
+        messages.error(request, 'Debes comprar el producto antes de poder reseñarlo.')
+        return redirect('item_detail', pk=item.pk)  # Redirige a la página del ítem
+
     if request.method == 'POST':
-        content = request.POST.get('content')
-        rating = request.POST.get('rating')
-
-        
-        try:
-            carrito = Carrito.objects.get(usuario=request.user)
-            item_carrito = ItemCarrito.objects.get(carrito=carrito, item=item)
-        except ItemCarrito.DoesNotExist:
-            
-            return render(request, 'item_detail.html', {
-                'item': item,
-                'reviews': Review.objects.filter(item=item),
-                'error_message': 'No puedes reseñar este ítem porque no lo has comprado.'
-            })
-
-        
-        Review.objects.create(
-            item=item,
-            author=request.user,
-            content=content,
-            rating=rating
-        )
-
-        return redirect('ver_carrito')
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.item = item
+            review.author = request.user
+            review.save()
+            messages.success(request, 'Reseña creada con éxito.')
+            return redirect('item_detail', pk=item.pk)
 
     return render(request, 'add_review.html', {'item': item})
 
